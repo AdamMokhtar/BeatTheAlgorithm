@@ -1,6 +1,6 @@
 # Beat The Algorithm
 
-# How to Run program
+## How to Run program
 
 Copy the repository with the source code on your machine.
 
