@@ -37,22 +37,22 @@ This canvas is in the center of the page. Which represents the image taken.
 This frame is on the center bottom of the screen. The frame has one row and two columns. Each column represents a button. Button RESET which is intended to reset the application. Button TAKE A PIC! Is intended to be used to capture images.
  
 ### Callable functions
-**SetThreePics** 
+#### SetThreePics
 This function aims to set the three compression images by passing in the three paths of the images which will be set accordingly. Each image passed will be resized to fit the canvas and afterward published.
 
 > Note: change setThreePics to array parameter later!
 
-**setMainFrame**
+#### setMainFrame
 This method will set the image on the main canvas. As a parameter, the path of the main image will be passed. Further, the image will be resized and published on the main canvas.
  
-**setAtrributes**
+#### setAtrributes
 setAttributes fills in the two labels of the attributes frame.  As the first parameter, a string of the emotion result is expected. while the second parameter expects the label and the result of the second attribute.
  
-**rest**
+#### rest
 This function resets the images on the comparison frame and the main canvas to the blue blank image.
  
  
-**dummpySetImagesAndAttr**
+#### dummpySetImagesAndAttr
 This function sets some dummy data for the images on the comparison frame and the main canvas. Similarly, for the attributes, some dummy data will be filled.
 
 
