@@ -8,7 +8,8 @@ from deepface import DeepFace
 
 
 def take_picture():
-    face_Cascade = cv.CascadeClassifier('haarcascade_frontalface_default.xml')
+    face_Cascade = cv.CascadeClassifier(
+        'haarcascade_frontalface_default.xml')
     dt = datetime.now()
 
     ts = datetime.timestamp(dt)
@@ -48,7 +49,7 @@ def take_picture():
         if cv.waitKey(1) == ord('q'):
             break
         elif cv.waitKey(1) == ord('s'):
-            cv.imwrite("images/picture_" + str(ts) + ".jpg", image)
+            cv.imwrite("images/" + str(ts) + ".jpg", image)
        # elif cv.waitKey(1)== ord('r'):
          #   take_picture()
 
