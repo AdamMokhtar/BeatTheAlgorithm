@@ -31,6 +31,7 @@ def take_picture():
         faces = face_Cascade.detectMultiScale(gray, 1.1, 4)
 
         for (x, y, w, h) in faces:
+
             cv.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255), 3)
 
         emotion = result['dominant_emotion']
