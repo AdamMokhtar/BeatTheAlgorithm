@@ -28,16 +28,14 @@ def similar_face_finder(faces):
                 img_database.append(img)
     load_images_from_folder(faces)
 
+    encodings_database = []
 
-encodings_database = []
-
-
-def encodings(img_database):
-    for i in range(len(img_database)):
-        img_encoder = img_database[i]
-        # TODO: do with Deepface model equivalent
-       # encodingss=face_recognition.face_encodings(img_encoder)[0]
-        encodings_database.append(encodings)
+    def encodings(img_database):
+        for i in range(len(img_database)):
+            img_encoder = img_database[i]
+            # TODO: do with Deepface model equivalent
+        # encodingss=face_recognition.face_encodings(img_encoder)[0]
+            encodings_database.append(encodings)
 
     encodings(img_database)
     # TODO: Deepfacemodel equvalent
@@ -46,6 +44,7 @@ def encodings(img_database):
 
     similarity_data = []
     for i in range(len(encodings_database)):
+        # TODO: revert to deepface
         a = face_recognition.face_distance([me_encode], encodings_database[i])
         similarity_data.append(a)
 
