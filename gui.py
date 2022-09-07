@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import TOP, Canvas,Frame,Label
 from PIL import ImageTk,Image 
 import cv2
+from datetime import datetime
 
 window = tk.Tk()
 
@@ -12,6 +13,8 @@ window.title("Beat The Algorithm")
 imgPathDummy = "images/img.png"
 imagPathDummy2 = "images/blue.png"
 imagPathDummy3 = "images/main.png"
+dt = datetime.now()
+ts = datetime.timestamp(dt)
 
 titleLabel = tk.Label(window, text="BEAT THE ALGORITHM",font=('Arial 20 bold italic'))
 titleLabel.pack( padx=20, pady=20)
@@ -53,18 +56,7 @@ secondLabel.grid(row=1,column=0,sticky="W",pady=10)
 
 attrFrame.pack(anchor = "w", side=TOP,padx=10)
 
-#main canvas
-# mainCanvas = Canvas(window, width = 900, height = 700) 
-# mainCanvas.pack(padx=(400, 0)) #padx=(250, 0)
-# img1Input= (Image.open(imagPathDummy2))
-# #Resize the Image using resize method
-# resizedMain_image = img1Input.resize((900,700), Image.ANTIALIAS)
-# newMain_image= ImageTk.PhotoImage(resizedMain_image)
-# mainCanvas_container = mainCanvas.create_image(10, 10, anchor=tk.NW, image=newMain_image) 
-
-
-
-# Create a frame
+# Create a Main frame
 mainFrame = Frame(window, bg="white")
 mainFrame.pack()
 #Create a label in the frame
@@ -74,19 +66,19 @@ mainLabel.pack()
 
 # # Capture from camera
 cap = cv2.VideoCapture(0)
-
+_callback_id = None
+_frame = None
 # function for video streaming
 def video_stream():
-    #camera.take_picture()  #this should return a live feed?
-
-    _, frame = cap.read()
-    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    global _callback_id, _frame
+    _, _frame = cap.read()
+    cv2image = cv2.cvtColor(_frame, cv2.COLOR_BGR2RGBA)
     img = Image.fromarray(cv2image)
     imgtk = ImageTk.PhotoImage(image=img)
     mainLabel.imgtk = imgtk
     mainLabel.configure(image=imgtk)
-    #mainLabel.after(1, video_stream)  #refresh
-    cv2.imwrite("images/picture_" + ".jpg", frame)
+    _callback_id = mainLabel.after(1, video_stream)  #refresh
+    
 
 
 
@@ -111,26 +103,36 @@ def setThreePics(Img1Path,Img2Path,Img3Path):
     comCanvas3.itemconfig(comCanvas1_container,image = new_image3)
     comCanvas3.imgref = new_image3
 
-def setMainFrame(ImgPath):
-    imgInputFun= (Image.open(ImgPath))
-    resizedMain_image = imgInputFun.resize((900,700), Image.ANTIALIAS)
-    newMain_image = ImageTk.PhotoImage(resizedMain_image)
-    mainCanvas.itemconfig(mainCanvas_container,image = newMain_image)
-    mainCanvas.imgref = newMain_image
+# def setMainFrame(ImgPath):
+#     imgInputFun= (Image.open(ImgPath))
+#     resizedMain_image = imgInputFun.resize((900,700), Image.ANTIALIAS)
+#     newMain_image = ImageTk.PhotoImage(resizedMain_image)
+#     mainCanvas.itemconfig(mainCanvas_container,image = newMain_image)
+#     mainCanvas.imgref = newMain_image
 
 def dummpySetImagesAndAttr():
-    setMainFrame(imagPathDummy3)
+    # setMainFrame(imagPathDummy3)
     setThreePics(imgPathDummy,imgPathDummy,imgPathDummy)
     setAttributes("Happy","N/A: N/A")
 
+def setImagesAndAttr():
+    dummpySetImagesAndAttr()
+    #stope video capture
+    mainLabel.after_cancel(_callback_id) 
+    #save pic
+    cv2.imwrite("images/picture_" + str(ts) +  ".jpg", _frame)
+    #send pic to the camera class
+    #set the images and attributes
+
+
 def reset():
-    #set main frame to defult
-    img1Input= (Image.open(imagPathDummy2))
-    blankImage= ImageTk.PhotoImage(img1Input)
-    mainCanvas.itemconfig(mainCanvas_container,image = blankImage)
-    mainCanvas.imgref = blankImage
-    #set all three pics to defult
-    #1
+    # #set main frame to defult
+    # img1Input= (Image.open(imagPathDummy2))
+    # blankImage= ImageTk.PhotoImage(img1Input)
+    # mainCanvas.itemconfig(mainCanvas_container,image = blankImage)
+    # mainCanvas.imgref = blankImage
+    # #set all three pics to defult
+    # #1
     comCanvas1.itemconfig(comCanvas1_container,image = blankImage)
     comCanvas1.imgref = blankImage
     #2
@@ -142,6 +144,8 @@ def reset():
 
     emoLabel['text'] = "Emotion:"
     secondLabel['text'] = "Smt: N/A"
+    video_stream()
+
 
 def setAttributes(emotionAttr,secondFullAttr):
     emoLabel['text'] = "Emotion: "+emotionAttr
@@ -156,7 +160,7 @@ resetBtn = tk.Button(btnFrame, text="RESET", font=('Arial 10'),command=lambda:re
 resetBtn.grid(row=0,column=0)
 #take a pic btn
 #2
-takePicBtn = tk.Button(btnFrame, text="TAKE A PIC!", font=('Arial 16 bold'),command=lambda:dummpySetImagesAndAttr())
+takePicBtn = tk.Button(btnFrame, text="TAKE A PIC!", font=('Arial 16 bold'),command=lambda:setImagesAndAttr())
 takePicBtn.grid(row=0,column=1)
 
 btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
