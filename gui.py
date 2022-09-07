@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import TOP, Canvas
-from PIL import ImageTk,Image  
+from tkinter import TOP, Canvas,Frame,Label
+from PIL import ImageTk,Image 
+import cv2
 
 window = tk.Tk()
 
@@ -53,13 +54,41 @@ secondLabel.grid(row=1,column=0,sticky="W",pady=10)
 attrFrame.pack(anchor = "w", side=TOP,padx=10)
 
 #main canvas
-mainCanvas = Canvas(window, width = 900, height = 700) 
-mainCanvas.pack(padx=(400, 0)) #padx=(250, 0)
-img1Input= (Image.open(imagPathDummy2))
-#Resize the Image using resize method
-resizedMain_image = img1Input.resize((900,700), Image.ANTIALIAS)
-newMain_image= ImageTk.PhotoImage(resizedMain_image)
-mainCanvas_container = mainCanvas.create_image(10, 10, anchor=tk.NW, image=newMain_image) 
+# mainCanvas = Canvas(window, width = 900, height = 700) 
+# mainCanvas.pack(padx=(400, 0)) #padx=(250, 0)
+# img1Input= (Image.open(imagPathDummy2))
+# #Resize the Image using resize method
+# resizedMain_image = img1Input.resize((900,700), Image.ANTIALIAS)
+# newMain_image= ImageTk.PhotoImage(resizedMain_image)
+# mainCanvas_container = mainCanvas.create_image(10, 10, anchor=tk.NW, image=newMain_image) 
+
+
+
+# Create a frame
+mainFrame = Frame(window, bg="white")
+mainFrame.pack()
+#Create a label in the frame
+mainLabel = Label(mainFrame)
+mainLabel.pack()
+
+
+# # Capture from camera
+cap = cv2.VideoCapture(0)
+
+# function for video streaming
+def video_stream():
+    #camera.take_picture()  #this should return a live feed?
+
+    _, frame = cap.read()
+    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(cv2image)
+    imgtk = ImageTk.PhotoImage(image=img)
+    mainLabel.imgtk = imgtk
+    mainLabel.configure(image=imgtk)
+    #mainLabel.after(1, video_stream)  #refresh
+    cv2.imwrite("images/picture_" + ".jpg", frame)
+
+
 
 def setThreePics(Img1Path,Img2Path,Img3Path):
     #1
@@ -132,4 +161,5 @@ takePicBtn.grid(row=0,column=1)
 
 btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
 
+video_stream()
 window.mainloop()
