@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import csv
 import tkinter as tk
 from tkinter import TOP, Canvas,Frame,Label
@@ -19,8 +20,8 @@ def mainOperation():
 
 
 # window properties
-#window.geometry('1080x1920')
-window.geometry('500x500')
+window.geometry('1080x1920')
+#window.geometry('250x100')
 window.title("Beat The Algorithm")
 #importing image
 imgPathDummy = "images/img.png"
@@ -141,15 +142,24 @@ def setImagesAndAttr():
     mainLabel.after_cancel(_callback_id) 
     curr_datetime = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
     path = "images/picture_" + curr_datetime +  ".jpg"
+
+    print(path)
     _lastImgPath = cv2.imwrite(path, _frame) 
+    print(path)
     results = verify.compare_one_to_many(path)
-    print("!!!!!!!!!!!!!!!")
-    print(results)
+    print(results['identity'])
     listResult = results['identity'].to_list()
-    print(listResult[0])
-    print(type(listResult[1]))
-    print(listResult[2])
-    setThreePics(listResult[0],listResult[1],listResult[2])
+    # print(listResult[0])
+    # print(type(listResult[1]))
+    # print(listResult[2])
+    if (len(listResult) == 3 ):
+        setThreePics(listResult[0],listResult[1],listResult[2])
+    elif(len(listResult) == 2 ):
+        setThreePics(listResult[0],listResult[1],None)
+    elif(len(listResult) == 1):
+        setThreePics(listResult[0],None,None)
+    
+        
     
     #csv_results = results.to_csv(index=False)
     # with open(csv_results, 'r') as f:
