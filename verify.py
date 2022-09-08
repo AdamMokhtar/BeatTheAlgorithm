@@ -1,26 +1,25 @@
 import cv2
 import matplotlib.pyplot as plt
 from deepface import DeepFace
+import os
+
+def loop_pictures():
+    path = "images/"
+    images = os.listdir(path)
+    print(images)
+
+    for img in images:
+        img_arr = cv2.imread(os.path.join(path, img))
+        print(img_arr)   
+    return(img_arr)
+
+def compare_one_to_many(imgPath):
+    df = DeepFace.find(img_path=imgPath,
+    db_path="C:/Users/admokhta/Documents/InternalProject/BeatTheAlgorithm/images", enforce_detection=False)
+    return df.head(3)
+
+    # TODO: handle respresnetation_vgg_face.pkl '
+    # TODO: calling show images on gui
+    #gui.setThreePics()
 
 
-def verify(img1_path, img2_path):
-    img1 = cv2.imread('images\img1.jpg')
-    img2 = cv2.imread('images\img2.jpg')
-
-    plt.imshow(img1[:, :, ::-1])
-    plt.show()
-    plt.imshow(img2[:, :, ::-1])
-    plt.show()
-
-    result = DeepFace.verify('images\img1.jpg', 'images\img2.jpg')
-    print("result", result)
-
-    verification = result[0]
-
-    if verification:
-        print("they are the same")
-    else:
-        print("they are not same")
-
-
-verify("img1.jpg", "img2.jpg")

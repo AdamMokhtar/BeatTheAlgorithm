@@ -1,20 +1,33 @@
+import csv
 import tkinter as tk
 from tkinter import TOP, Canvas,Frame,Label
+from unittest import result
 from PIL import ImageTk,Image 
 import cv2
 from datetime import datetime
+import cv2 as cv
+import keyboard 
+import os
+import verify
+import csv
 
 window = tk.Tk()
 
+def mainOperation():
+    keyboard.wait("a")
+    setImagesAndAttr()
+
+
 # window properties
-window.geometry('1080x1920')
+#window.geometry('1080x1920')
+window.geometry('700x700')
 window.title("Beat The Algorithm")
 #importing image
 imgPathDummy = "images/img.png"
 imagPathDummy2 = "images/blue.png"
 imagPathDummy3 = "images/main.png"
-dt = datetime.now()
-ts = datetime.timestamp(dt)
+_imagesArr = None
+
 
 titleLabel = tk.Label(window, text="BEAT THE ALGORITHM",font=('Arial 20 bold italic'))
 titleLabel.pack( padx=20, pady=20)
@@ -68,6 +81,7 @@ mainLabel.pack()
 cap = cv2.VideoCapture(0)
 _callback_id = None
 _frame = None
+_lastImgPath = None
 # function for video streaming
 def video_stream():
     global _callback_id, _frame
@@ -115,12 +129,37 @@ def dummpySetImagesAndAttr():
     setThreePics(imgPathDummy,imgPathDummy,imgPathDummy)
     setAttributes("Happy","N/A: N/A")
 
+def loop_pictures():
+    global _imagesArr
+    path = "images/"
+    _imagesArr = os.listdir(path)
+
 def setImagesAndAttr():
-    dummpySetImagesAndAttr()
+    global _lastImgPath
+    # dummpySetImagesAndAttr()
     #stope video capture
     mainLabel.after_cancel(_callback_id) 
+    curr_datetime = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+    path = "images/picture_" + curr_datetime +  ".jpg"
+    _lastImgPath = cv2.imwrite(path, _frame) 
+    results = verify.compare_one_to_many(path)
+    print("!!!!!!!!!!!!!!!")
+    #print(results)
+    
+    csv_results = results.to_csv(index=False)
+    # with open(csv_results, 'r') as f:
+    #     reader = csv.reader(f)
+    #     example_list = list(reader)
+    # print(example_list)
+    print(type(csv_results))
+
+    #reader = csv_results.reader(delimiter=",")
+    
+    
+    #setThreePics(csv_results[0],[1],[2])
+    
     #save pic
-    cv2.imwrite("images/picture_" + str(ts) +  ".jpg", _frame)
+    #_lastImgPath = cv2.imwrite("images/picture_" + str(ts) +  ".jpg", _frame)!!!!!!!!
     #send pic to the camera class
     #set the images and attributes
 
@@ -165,5 +204,7 @@ takePicBtn.grid(row=0,column=1)
 
 btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
 
+
 video_stream()
+
 window.mainloop()

@@ -26,12 +26,12 @@ targets = face_detector.detectMultiScale(img1, 1.3, 5)
 x, y, w, h = targets[0]  # this has just a single face
 target = img1[int(y):int(y+h), int(x):int(x+w)]
 
-
+#showing only one image
 def compare(img1, img2):
     resp = DeepFace.verify(img1, img2, enforce_detection=False)
     print(resp["verified"])
 
 
-for face in detected_face:
-    # compare face and target in each iteration
-    compare(face, target)
+# for face in detected_face:
+#     # compare face and target in each iteration
+#     compare(face, target)
