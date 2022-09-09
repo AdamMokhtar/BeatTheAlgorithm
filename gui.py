@@ -159,7 +159,7 @@ def setImagesAndAttr():
     elif(len(listResult) == 1):
         setThreePics(listResult[0],None,None)
     
-        
+    os.remove("C:/Users/admokhta/Documents/InternalProject/BeatTheAlgorithm/images/representations_vgg_face.pkl") 
     
     #csv_results = results.to_csv(index=False)
     # with open(csv_results, 'r') as f:
