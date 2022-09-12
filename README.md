@@ -7,7 +7,7 @@ This application is a interactive game where the goal is to make people think cr
 
 - The participant can then choose a disguise in the form of face paint that adds attributes such as tiger paint or obscures it.
 
-- Then a second picture will be made, this picture is compared to all the pictures taken that day to see if the algorithm can find the matching controll picture.
+- Then a second picture will be made, this picture is compared to all the pictures taken that day to see if the algorithm can find the matching control picture.
 
 - If the algorithm can't find you in the system or give false positives then you have BEAT THE ALGORITHM.
 
@@ -18,10 +18,11 @@ And run `gui.py`
 
 ## Camera
 
-For the use of a external camera please change the following in `gui.py`:
+### For the use of a external camera please change the following in line in `gui.py`.
+
 `cap = cv2.VideoCapture(0)`
 
-### change that line to
+### change that line to:
 
 `cap = cv2.VideoCapture(1)`
 
@@ -92,3 +93,8 @@ How setup 06-09-2022
 In your command line run the command:
 
 `pip3 -r install requirements.txt`
+
+# References
+
+This project uses the Deepface model for facial recognition.
+https://research.facebook.com/publications/deepface-closing-the-gap-to-human-level-performance-in-face-verification/
