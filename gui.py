@@ -1,34 +1,23 @@
-from asyncio.windows_events import NULL
-import csv
 import tkinter as tk
 from tkinter import TOP, Canvas,Frame,Label
-from unittest import result
 from PIL import ImageTk,Image 
 import cv2
 from datetime import datetime
-import cv2 as cv
-import keyboard 
 import os
 import verify
-import csv
+from concurrent.futures import ThreadPoolExecutor
+
 
 window = tk.Tk()
 
-def mainOperation():
-    keyboard.wait("a")
-    setImagesAndAttr()
-
-
 # window properties
 window.geometry('1080x1920')
-#window.geometry('250x100')
 window.title("Beat The Algorithm")
 #importing image
-imgPathDummy = "images/img.png"
-imagPathDummy2 = "images/blue.png"
-imagPathDummy3 = "images/main.png"
+blankImg = "images/blue.png"
 _imagesArr = None
 
+executer = ThreadPoolExecutor()
 
 titleLabel = tk.Label(window, text="BEAT THE ALGORITHM",font=('Arial 20 bold italic'))
 titleLabel.pack( padx=20, pady=20)
@@ -40,7 +29,7 @@ comFrame.columnconfigure(0,weight=0)
 #1
 comCanvas1 = Canvas(comFrame, width = 400, height = 300) 
 comCanvas1.grid(row=0,column=0)
-img1Input= (Image.open(imagPathDummy2))
+img1Input= (Image.open(blankImg))
 resized_image11= img1Input.resize((400,300), Image.ANTIALIAS)
 blankImage= ImageTk.PhotoImage(resized_image11)
 comCanvas1_container = comCanvas1.create_image(10, 10, anchor=tk.NW, image=blankImage) 
@@ -51,7 +40,7 @@ comCanvas2_container = comCanvas2.create_image(10, 10, anchor=tk.NW, image=blank
 #3
 comCanvas3 = Canvas(comFrame, width = 400, height = 300) 
 comCanvas3.grid(row=2,column=0)
-comCanvas1_container = comCanvas3.create_image(10, 10, anchor=tk.NW, image=blankImage) 
+comCanvas3_container = comCanvas3.create_image(10, 10, anchor=tk.NW, image=blankImage) 
 
 comFrame.pack(padx=20, side=tk.RIGHT)
 
@@ -62,27 +51,32 @@ attrFrame.columnconfigure(0)
 #pic attributes labels
 emoLabel = tk.Label(attrFrame, text="Emotion: N/A",font=('Arial 18'), bd=1, relief= "solid")
 emoLabel.grid(row=0,column=0,sticky="W",pady=10)
-# titleLabel.pack(side=tk.LEFT, ipadx=10, ipady=10)
 
-secondLabel = tk.Label(attrFrame, text="Smt: N/A",font=('Arial 18'), bd=1, relief= "solid")
-secondLabel.grid(row=1,column=0,sticky="W",pady=10)
-# titleLabel.pack(side=tk.LEFT,)
+ageLabel = tk.Label(attrFrame, text="Age: N/A",font=('Arial 18'), bd=1, relief= "solid")
+ageLabel.grid(row=1,column=0,sticky="W",pady=10)
+
+genderLabel = tk.Label(attrFrame, text="Gender: N/A",font=('Arial 18'), bd=1, relief= "solid")
+genderLabel.grid(row=2,column=0,sticky="W",pady=10)
+
+raceLabel = tk.Label(attrFrame, text="Race: N/A",font=('Arial 18'), bd=1, relief= "solid")
+raceLabel.grid(row=3,column=0,sticky="W",pady=10)
 
 attrFrame.pack(anchor = "w", side=TOP,padx=10)
 
-# Create a Main frame
+#A Main frame for the camera feed
 mainFrame = Frame(window, bg="white")
 mainFrame.pack()
 #Create a label in the frame
 mainLabel = Label(mainFrame)
 mainLabel.pack()
 
-
-# # Capture from camera
+# Capture from camera 
+#TODO: Switch index for the external cam
 cap = cv2.VideoCapture(0)
 _callback_id = None
 _frame = None
 _lastImgPath = None
+
 # function for video streaming
 def video_stream():
     global _callback_id, _frame
@@ -95,117 +89,97 @@ def video_stream():
     _callback_id = mainLabel.after(1, video_stream)  #refresh
     
 
-
-
-def setThreePics(Img1Path,Img2Path,Img3Path):
+def setThreePics(imagesPaths):
+    newImagesPaths = checkDeepfaceOutputPaths(imagesPaths)
     #1
-    #Resize the Image using resize method
-    img1InputFun= (Image.open(Img1Path))
-    resized_image1= img1InputFun.resize((400,300), Image.ANTIALIAS)
-    new_image1= ImageTk.PhotoImage(resized_image1)
-    comCanvas1.itemconfig(comCanvas1_container,image = new_image1)
-    comCanvas1.imgref = new_image1
+    setImage(newImagesPaths[0],comCanvas1,comCanvas1_container)
     #2
-    img2InputFun= (Image.open(Img2Path))
-    resized_image2= img2InputFun.resize((400,300), Image.ANTIALIAS)
-    new_image2= ImageTk.PhotoImage(resized_image2)
-    comCanvas2.itemconfig(comCanvas1_container,image = new_image2)
-    comCanvas2.imgref = new_image2
-    # #3
-    img3InputFun= (Image.open(Img3Path))
-    resized_image3 = img3InputFun.resize((400,300), Image.ANTIALIAS)
-    new_image3= ImageTk.PhotoImage(resized_image3)
-    comCanvas3.itemconfig(comCanvas1_container,image = new_image3)
-    comCanvas3.imgref = new_image3
+    setImage(newImagesPaths[1],comCanvas2,comCanvas2_container)
+    #3
+    setImage(newImagesPaths[2],comCanvas3,comCanvas3_container)
 
-# def setMainFrame(ImgPath):
-#     imgInputFun= (Image.open(ImgPath))
-#     resizedMain_image = imgInputFun.resize((900,700), Image.ANTIALIAS)
-#     newMain_image = ImageTk.PhotoImage(resizedMain_image)
-#     mainCanvas.itemconfig(mainCanvas_container,image = newMain_image)
-#     mainCanvas.imgref = newMain_image
+def setImage(imgPath, imageCanvas, imageContainer):
+    imgInput = (Image.open(imgPath))
+    resized_image = imgInput.resize((400,300), Image.ANTIALIAS)
+    new_image= ImageTk.PhotoImage(resized_image)
+    imageCanvas.itemconfig(imageContainer,image = new_image)
+    imageCanvas.imgref = new_image
 
+#this function is to check the three imgs returned and fill in blanck onces if any is empty
+def checkDeepfaceOutputPaths(imagesPaths):
+    match len(imagesPaths):
+        case 3:
+            return imagesPaths
+        case 2: 
+            imagesPaths.append(blankImg)
+            return imagesPaths
+        case 1: 
+            imagesPaths.append(blankImg)
+            imagesPaths.append(blankImg)
+            return imagesPaths
+        case _:
+            imagesPaths.append(blankImg)
+            imagesPaths.append(blankImg)
+            imagesPaths.append(blankImg)
+            return imagesPaths
+
+    
 def dummpySetImagesAndAttr():
-    # setMainFrame(imagPathDummy3)
-    setThreePics(imgPathDummy,imgPathDummy,imgPathDummy)
+    setThreePics(blankImg,blankImg,blankImg)
     setAttributes("Happy","N/A: N/A")
 
-def loop_pictures():
-    global _imagesArr
-    path = "images/"
-    _imagesArr = os.listdir(path)
-
 def setImagesAndAttr():
-    global _lastImgPath
-    # dummpySetImagesAndAttr()
+    global _lastImgPath,_callback_id
     #stope video capture
     mainLabel.after_cancel(_callback_id) 
-    curr_datetime = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-    path = "images/picture_" + curr_datetime +  ".jpg"
+    curr_datetime = getCurrentDateTime()
+    path = "lastImage/picture_" + curr_datetime +  ".jpg"
 
-    print(path)
     _lastImgPath = cv2.imwrite(path, _frame) 
-    print(path)
+
+    analysis = verify.getFacialAttribute(path)
+    setAttributes(analysis["dominant_emotion"],str(analysis["age"]),analysis["gender"],analysis["dominant_race"])
     results = verify.compare_one_to_many(path)
-    print(results['identity'])
     listResult = results['identity'].to_list()
-    # print(listResult[0])
-    # print(type(listResult[1]))
-    # print(listResult[2])
-    if (len(listResult) == 3 ):
-        setThreePics(listResult[0],listResult[1],listResult[2])
-    elif(len(listResult) == 2 ):
-        setThreePics(listResult[0],listResult[1],None)
-    elif(len(listResult) == 1):
-        setThreePics(listResult[0],None,None)
+    setThreePics(listResult)
     
-    os.remove("C:/Users/admokhta/Documents/InternalProject/BeatTheAlgorithm/images/representations_vgg_face.pkl") 
-    
-    #csv_results = results.to_csv(index=False)
-    # with open(csv_results, 'r') as f:
-    #     reader = csv.reader(f)
-    #     example_list = list(reader)
-    # print(example_list)
-    # result = [x.strip() for x in csv_results.split(',')]
-    # chunks = result.split('\n')
-    # print(chunks)
-    # #reader = csv_results.reader(delimiter=",")
+ 
+    try:
+        os.remove("images/representations_vgg_face.pkl") 
+    except OSError:
+        pass
 
+def getCurrentDateTime():
+    return datetime.now().strftime('%Y-%m-%d %H-%M-%S')
     
-    
-    #setThreePics(csv_results[0],[1],[2])
-    
-    #save pic
-    #_lastImgPath = cv2.imwrite("images/picture_" + str(ts) +  ".jpg", _frame)!!!!!!!!
-    #send pic to the camera class
-    #set the images and attributes
-
-
 def reset():
-    # #set main frame to defult
-    # img1Input= (Image.open(imagPathDummy2))
-    # blankImage= ImageTk.PhotoImage(img1Input)
-    # mainCanvas.itemconfig(mainCanvas_container,image = blankImage)
-    # mainCanvas.imgref = blankImage
-    # #set all three pics to defult
-    # #1
-    comCanvas1.itemconfig(comCanvas1_container,image = blankImage)
-    comCanvas1.imgref = blankImage
+    global _callback_id
+    #1
+    resetImagesCanvasAndAttributes(blankImage,comCanvas1,comCanvas1_container)
     #2
-    comCanvas2.itemconfig(comCanvas1_container,image = blankImage)
-    comCanvas2.imgref = blankImage
+    resetImagesCanvasAndAttributes(blankImage,comCanvas2,comCanvas2_container)
     #3
-    comCanvas3.itemconfig(comCanvas1_container,image = blankImage)
-    comCanvas3.imgref = blankImage
+    resetImagesCanvasAndAttributes(blankImage,comCanvas3,comCanvas3_container)
+    print("before")
+    _callback_id = mainLabel.after(1, video_stream)  #refresh
 
+def resetImagesCanvasAndAttributes(imgPath, imageCanvas, imageContainer):
+    #set all three pics to default
+    imageCanvas.itemconfig(imageContainer,image = blankImage)
+    imageCanvas.imgref = imgPath
+    #set attributes to default
     emoLabel['text'] = "Emotion:"
-    secondLabel['text'] = "Smt: N/A"
-    video_stream()
+    ageLabel['text'] = "Age:"
+    genderLabel['text'] ="Gender: "
+    raceLabel['text'] ="Race: "
 
 
-def setAttributes(emotionAttr,secondFullAttr):
-    emoLabel['text'] = "Emotion: "+emotionAttr
-    secondLabel['text'] = secondFullAttr
+
+def setAttributes(emotionAttr,ageAttr,genderAttr,raceAttr):
+    emoLabel['text'] = "Emotion: " + emotionAttr
+    ageLabel['text'] ="Age: "+ ageAttr
+    genderLabel['text'] ="Gender: "+ genderAttr
+    raceLabel['text'] ="Race: "+ raceAttr
 
 # btn frame
 btnFrame = tk.Frame(window)
@@ -220,7 +194,6 @@ takePicBtn = tk.Button(btnFrame, text="TAKE A PIC!", font=('Arial 16 bold'),comm
 takePicBtn.grid(row=0,column=1)
 
 btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
-
 
 video_stream()
 
