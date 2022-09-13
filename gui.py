@@ -14,7 +14,7 @@ window = tk.Tk()
 window.geometry('1080x1920')
 window.title("Beat The Algorithm")
 #importing image
-blankImg = "images/blue.png"
+blankImg = "main.png"
 _imagesArr = None
 
 executer = ThreadPoolExecutor()
@@ -160,7 +160,7 @@ def reset():
     resetImagesCanvasAndAttributes(blankImage,comCanvas2,comCanvas2_container)
     #3
     resetImagesCanvasAndAttributes(blankImage,comCanvas3,comCanvas3_container)
-    print("before")
+    mainLabel.after_cancel(_callback_id) 
     _callback_id = mainLabel.after(1, video_stream)  #refresh
 
 def resetImagesCanvasAndAttributes(imgPath, imageCanvas, imageContainer):
