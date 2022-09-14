@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import TOP, Canvas,Frame,Label
+from tkinter import BOTH, TOP, Canvas,Frame,Label,PhotoImage
 from PIL import ImageTk,Image 
 import cv2
 from datetime import datetime
@@ -10,16 +10,38 @@ import verify
 window = tk.Tk()
 
 # window properties
-window.geometry('1080x1920')
+#window.geometry('2560x1440')
+window.geometry('3000x2000')
 window.title("Beat The Algorithm")
-window.configure(bg='blue')
+capColor = '#2b0a3d' 
+capFont = '#23acd8'
+capWhite = '#e9e7e5'
+window.configure(bg=capColor)
+
+
+#https://stackoverflow.com/questions/24061099/tkinter-resize-background-image-to-window-size
+def resize_image(event):
+    new_width = event.width
+    new_height = event.height
+    image = copy_of_image.resize((new_width, new_height))
+    photo = ImageTk.PhotoImage(image)
+    backGroundLabel.config(image = photo)
+    backGroundLabel.image = photo #avoid garbage collection
+
+image = Image.open('BtATechivalBackground.png')
+copy_of_image = image.copy()
+photo = ImageTk.PhotoImage(image)
+backGroundLabel = Label(window, image = photo)
+backGroundLabel.bind('<Configure>', resize_image)
+backGroundLabel.pack(fill=BOTH, expand = tk.YES)
+
 #importing the main image
 blankImg = "main.png"
 _imagesArr = None
 
 
 #A Main frame for the camera feed
-mainFrame = Frame(window)
+mainFrame = Frame(backGroundLabel, bg = capColor)
 mainFrame.rowconfigure(0, weight=4)
 mainFrame.rowconfigure(1, weight=3)
 mainFrame.columnconfigure(1, weight=4)
@@ -29,7 +51,7 @@ mainFrame.columnconfigure(0, weight=3)
 mainFrame.rowconfigure(4, weight=5)
 
 
-titleLabel = tk.Label(mainFrame, text="BEAT THE ALGORITHM",font=('Arial 20 bold italic'))
+titleLabel = tk.Label(mainFrame, text="BEAT THE ALGORITHM",font=('Arial 20 bold italic'),bg=capColor,fg=capFont)
 titleLabel.grid(row=0,column=1,sticky="N")
 
 
@@ -47,21 +69,21 @@ _lastImgPath = None
 
 
 # # Attributes frame
-attrFrame = tk.Frame(mainFrame)
+attrFrame = tk.Frame(mainFrame,bg=capColor)
 attrFrame.columnconfigure(0,weight=1)
 
 
 # #pic attributes labels
-emoLabel = tk.Label(attrFrame, text="Emotion:",font=('Arial 18'), bd=1, relief= "solid")
+emoLabel = tk.Label(attrFrame, text="Emotion:",font=('Arial 18'), bd=1, relief= "solid",bg=capWhite,fg=capFont)
 emoLabel.grid(row=0,column=0,sticky="W",padx=5, pady=5)
 
-ageLabel = tk.Label(attrFrame, text="Age:",font=('Arial 18'), bd=1, relief= "solid")
+ageLabel = tk.Label(attrFrame, text="Age:",font=('Arial 18'), bd=1, relief= "solid",bg=capColor,fg=capFont)
 ageLabel.grid(row=1,column=0,sticky="W",padx=5, pady=5)
 
-genderLabel = tk.Label(attrFrame, text="Gender:",font=('Arial 18'), bd=1, relief= "solid")
+genderLabel = tk.Label(attrFrame, text="Gender:",font=('Arial 18'), bd=1, relief= "solid",bg=capColor,fg=capFont)
 genderLabel.grid(row=2,column=0,sticky="W",padx=5, pady=5)
 
-raceLabel = tk.Label(attrFrame, text="Race:",font=('Arial 18'), bd=1, relief= "solid")
+raceLabel = tk.Label(attrFrame, text="Race:",font=('Arial 18'), bd=1, relief= "solid",bg=capColor,fg=capFont)
 raceLabel.grid(row=3,column=0,sticky="W",padx=5, pady=5)
 
 attrFrame.grid(row=1,column=2,sticky="W",padx=5, pady=5)
@@ -71,21 +93,21 @@ attrFrame.grid(row=1,column=2,sticky="W",padx=5, pady=5)
 
 
 # btn frame
-btnFrame = tk.Frame(mainFrame)
+btnFrame = tk.Frame(mainFrame,bg=capColor)
 #reset btn
 #1
-resetBtn = tk.Button(btnFrame, text="TAKE A PIC!", font=('Arial 16 bold'),command=lambda:takePic("images"))
+resetBtn = tk.Button(btnFrame, text="TAKE A PIC!", font=('Arial 16 bold'),command=lambda:takePic("images"),bg='black', fg=capWhite)
 resetBtn.grid(row=2,column=0,padx=5, pady=5)
 #take a pic btn
 #2
-takePicBtn = tk.Button(btnFrame, text="TAKE A PIC & FIND ME!", font=('Arial 16 bold'),command=lambda:setImagesAndAttr())
+takePicBtn = tk.Button(btnFrame, text="TAKE A PIC & FIND ME!", font=('Arial 16 bold'),command=lambda:setImagesAndAttr(),bg='red', fg=capWhite)
 takePicBtn.grid(row=2,column=1,padx=5, pady=5)
 
 # btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
 btnFrame.grid(row=2,column=1,padx=5, pady=5)
 
 #reset
-resetBtn1 = tk.Button(mainFrame, text="RESET", font=('Arial 13'),command=lambda:reset(), bg='red')
+resetBtn1 = tk.Button(mainFrame, text="RESET", font=('Arial 13'),command=lambda:reset(), bg=capWhite, fg=capColor)
 resetBtn1.grid(row=4,column=0, rowspan = 5, sticky="SW")
 
 
@@ -93,22 +115,22 @@ mainFrame.pack(side=tk.LEFT, padx = 250)
 
 
 # comparison frame
-comFrame = tk.Frame(window,bg="white")
+comFrame = tk.Frame(backGroundLabel,bg = capColor)
 comFrame.columnconfigure(0,weight=0)
 #comparison canvases
 #1
-comCanvas1 = Canvas(comFrame, width = 400, height = 300) 
+comCanvas1 = Canvas(comFrame, width = 400, height = 300,bg = capColor) 
 comCanvas1.grid(row=0,column=0)
 img1Input= (Image.open(blankImg))
 resized_image11= img1Input.resize((400,300), Image.ANTIALIAS)
 blankImage= ImageTk.PhotoImage(resized_image11)
 comCanvas1_container = comCanvas1.create_image(10, 10, anchor=tk.NW, image=blankImage) 
 #2
-comCanvas2 = Canvas(comFrame, width = 400, height = 300) 
+comCanvas2 = Canvas(comFrame, width = 400, height = 300,bg = capColor) 
 comCanvas2.grid(row=1,column=0)
 comCanvas2_container = comCanvas2.create_image(10, 10, anchor=tk.NW, image=blankImage) 
 #3
-comCanvas3 = Canvas(comFrame, width = 400, height = 300) 
+comCanvas3 = Canvas(comFrame, width = 400, height = 300,bg = capColor) 
 comCanvas3.grid(row=2,column=0)
 comCanvas3_container = comCanvas3.create_image(10, 10, anchor=tk.NW, image=blankImage) 
 
