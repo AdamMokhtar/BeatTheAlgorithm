@@ -5,7 +5,6 @@ import cv2
 from datetime import datetime
 import os
 import verify
-from concurrent.futures import ThreadPoolExecutor
 
 
 window = tk.Tk()
@@ -13,17 +12,88 @@ window = tk.Tk()
 # window properties
 window.geometry('1080x1920')
 window.title("Beat The Algorithm")
-#importing image
+window.configure(bg='blue')
+#importing the main image
 blankImg = "main.png"
 _imagesArr = None
 
-executer = ThreadPoolExecutor()
 
-titleLabel = tk.Label(window, text="BEAT THE ALGORITHM",font=('Arial 20 bold italic'))
-titleLabel.pack( padx=20, pady=20)
+#A Main frame for the camera feed
+mainFrame = Frame(window)
+mainFrame.rowconfigure(0, weight=4)
+mainFrame.rowconfigure(1, weight=3)
+mainFrame.columnconfigure(1, weight=4)
+mainFrame.columnconfigure(0, weight=3)
+
+# mainFrame.columnconfigure(0, weight=4)
+mainFrame.rowconfigure(4, weight=5)
+
+
+titleLabel = tk.Label(mainFrame, text="BEAT THE ALGORITHM",font=('Arial 20 bold italic'))
+titleLabel.grid(row=0,column=1,sticky="N")
+
+
+#Create a label in the frame
+mainLabel = Label(mainFrame)
+mainLabel.grid(row=1,column=1,sticky="W")
+# mainLabel.pack(anchor=tk.CENTER)
+
+# Capture from camera 
+#TODO: Switch index for the external cam
+cap = cv2.VideoCapture(0)
+_callback_id = None
+_frame = None
+_lastImgPath = None
+
+
+# # Attributes frame
+attrFrame = tk.Frame(mainFrame)
+attrFrame.columnconfigure(0,weight=1)
+
+
+# #pic attributes labels
+emoLabel = tk.Label(attrFrame, text="Emotion:",font=('Arial 18'), bd=1, relief= "solid")
+emoLabel.grid(row=0,column=0,sticky="W",padx=5, pady=5)
+
+ageLabel = tk.Label(attrFrame, text="Age:",font=('Arial 18'), bd=1, relief= "solid")
+ageLabel.grid(row=1,column=0,sticky="W",padx=5, pady=5)
+
+genderLabel = tk.Label(attrFrame, text="Gender:",font=('Arial 18'), bd=1, relief= "solid")
+genderLabel.grid(row=2,column=0,sticky="W",padx=5, pady=5)
+
+raceLabel = tk.Label(attrFrame, text="Race:",font=('Arial 18'), bd=1, relief= "solid")
+raceLabel.grid(row=3,column=0,sticky="W",padx=5, pady=5)
+
+attrFrame.grid(row=1,column=2,sticky="W",padx=5, pady=5)
+# attrFrame.pack(side=tk.LEFT)
+
+
+
+
+# btn frame
+btnFrame = tk.Frame(mainFrame)
+#reset btn
+#1
+resetBtn = tk.Button(btnFrame, text="TAKE A PIC!", font=('Arial 16 bold'),command=lambda:takePic("images"))
+resetBtn.grid(row=2,column=0,padx=5, pady=5)
+#take a pic btn
+#2
+takePicBtn = tk.Button(btnFrame, text="TAKE A PIC & FIND ME!", font=('Arial 16 bold'),command=lambda:setImagesAndAttr())
+takePicBtn.grid(row=2,column=1,padx=5, pady=5)
+
+# btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
+btnFrame.grid(row=2,column=1,padx=5, pady=5)
+
+#reset
+resetBtn1 = tk.Button(mainFrame, text="RESET", font=('Arial 13'),command=lambda:reset(), bg='red')
+resetBtn1.grid(row=4,column=0, rowspan = 5, sticky="SW")
+
+
+mainFrame.pack(side=tk.LEFT, padx = 250)
+
 
 # comparison frame
-comFrame = tk.Frame(window)
+comFrame = tk.Frame(window,bg="white")
 comFrame.columnconfigure(0,weight=0)
 #comparison canvases
 #1
@@ -44,38 +114,6 @@ comCanvas3_container = comCanvas3.create_image(10, 10, anchor=tk.NW, image=blank
 
 comFrame.pack(padx=20, side=tk.RIGHT)
 
-# Attributes frame
-attrFrame = tk.Frame(window)
-attrFrame.columnconfigure(0)
-
-#pic attributes labels
-emoLabel = tk.Label(attrFrame, text="Emotion: N/A",font=('Arial 18'), bd=1, relief= "solid")
-emoLabel.grid(row=0,column=0,sticky="W",pady=10)
-
-ageLabel = tk.Label(attrFrame, text="Age: N/A",font=('Arial 18'), bd=1, relief= "solid")
-ageLabel.grid(row=1,column=0,sticky="W",pady=10)
-
-genderLabel = tk.Label(attrFrame, text="Gender: N/A",font=('Arial 18'), bd=1, relief= "solid")
-genderLabel.grid(row=2,column=0,sticky="W",pady=10)
-
-raceLabel = tk.Label(attrFrame, text="Race: N/A",font=('Arial 18'), bd=1, relief= "solid")
-raceLabel.grid(row=3,column=0,sticky="W",pady=10)
-
-attrFrame.pack(anchor = "w", side=TOP,padx=10)
-
-#A Main frame for the camera feed
-mainFrame = Frame(window, bg="white")
-mainFrame.pack()
-#Create a label in the frame
-mainLabel = Label(mainFrame)
-mainLabel.pack()
-
-# Capture from camera 
-#TODO: Switch index for the external cam
-cap = cv2.VideoCapture(0)
-_callback_id = None
-_frame = None
-_lastImgPath = None
 
 # function for video streaming
 def video_stream():
@@ -128,14 +166,17 @@ def dummpySetImagesAndAttr():
     setThreePics(blankImg,blankImg,blankImg)
     setAttributes("Happy","N/A: N/A")
 
-def setImagesAndAttr():
+def takePic(folder):
     global _lastImgPath,_callback_id
     #stope video capture
     mainLabel.after_cancel(_callback_id) 
     curr_datetime = getCurrentDateTime()
-    path = "lastImage/picture_" + curr_datetime +  ".jpg"
-
+    path = folder +"/picture_" + curr_datetime +  ".jpg"
     _lastImgPath = cv2.imwrite(path, _frame) 
+    return path
+
+def setImagesAndAttr():
+    path =  takePic("lastImage")
 
     analysis = verify.getFacialAttribute(path)
     setAttributes(analysis["dominant_emotion"],str(analysis["age"]),analysis["gender"],analysis["dominant_race"])
@@ -170,8 +211,8 @@ def resetImagesCanvasAndAttributes(imgPath, imageCanvas, imageContainer):
     #set attributes to default
     emoLabel['text'] = "Emotion:"
     ageLabel['text'] = "Age:"
-    genderLabel['text'] ="Gender: "
-    raceLabel['text'] ="Race: "
+    genderLabel['text'] ="Gender:"
+    raceLabel['text'] ="Race:"
 
 
 
@@ -181,19 +222,7 @@ def setAttributes(emotionAttr,ageAttr,genderAttr,raceAttr):
     genderLabel['text'] ="Gender: "+ genderAttr
     raceLabel['text'] ="Race: "+ raceAttr
 
-# btn frame
-btnFrame = tk.Frame(window)
-btnFrame.columnconfigure(0,weight=1)
-#reset btn
-#1
-resetBtn = tk.Button(btnFrame, text="RESET", font=('Arial 10'),command=lambda:reset())
-resetBtn.grid(row=0,column=0)
-#take a pic btn
-#2
-takePicBtn = tk.Button(btnFrame, text="TAKE A PIC!", font=('Arial 16 bold'),command=lambda:setImagesAndAttr())
-takePicBtn.grid(row=0,column=1)
 
-btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
 
 video_stream()
 
