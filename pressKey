@@ -1,0 +1,17 @@
+import keyboard
+
+
+def pressingKeyNoModel() -> None:
+
+    while True:
+        if keyboard.is_pressed('enter'):
+            """Call function to take picture without model"""
+            break
+    # function call
+    print("goat")
+
+
+pressingKeyNoModel()
+
+
+def pressingKeyModel() -> None:

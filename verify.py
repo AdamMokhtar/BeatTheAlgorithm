@@ -21,9 +21,16 @@ def compare_one_to_many(imgPath):
     return df.head(3)
 
 
-def add_bounding_boxes():
+def add_bounding_boxes(faces):
+    face_cascade = cv2.CascadeClassifier('C:\Users\Alcain\Documents\learning\Adam\BeatTheAlgorithm\haarcascade_frontalface_default.xml')
     # add bounding boxes to video stream
-    #
+    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    """logic on how to add bounding box 
+    Take video image recognize face and draw box with (0,0,0) + line thickness"""
+    for face in faces:
+        cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+    emotion = result['dominant_emotion']
 
     pass
 
@@ -34,3 +41,8 @@ def add_attributes():
     # add race
     # add
     pass
+
+# add self for oop class stuff
+
+
+def analyze(frame)
