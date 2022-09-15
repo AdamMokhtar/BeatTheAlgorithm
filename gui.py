@@ -6,12 +6,13 @@ from datetime import datetime
 import os
 import verify
 import keyboard
+import keyboard
 
 
 window = tk.Tk()
 
 # window properties
-# window.geometry('2560x1440')
+#  window.geometry('2560x1440')
 window.geometry('3000x2000')
 window.title("Beat The Algorithm")
 capColor = '#2b0a3d'
@@ -59,7 +60,7 @@ titleLabel.grid(row=0, column=1, sticky="N")
 
 # Create a label in the frame
 mainLabel = Label(mainFrame)
-mainLabel.grid(row=1, column=1, sticky="W")
+mainLabel.grid(row=1,  column=1,  sticky="W")
 # mainLabel.pack(anchor=tk.CENTER)
 
 # Capture from camera
@@ -71,8 +72,8 @@ _lastImgPath = None
 
 
 # # Attributes frame
-attrFrame = tk.Frame(mainFrame, bg=capColor)
-attrFrame.columnconfigure(0, weight=1)
+attrFrame = tk.Frame(mainFrame,  bg=capColor)
+attrFrame.columnconfigure(0,  weight=1)
 
 
 # #pic attributes labels
@@ -106,7 +107,7 @@ takePicBtnAnd = tk.Button(btnFrame, text="TAKE A PIC & FIND ME!", font=(
 takePicBtnAnd.grid(row=2, column=1, padx=5, pady=5)
 
 # btnFrame.pack(side=tk.BOTTOM, ipadx=10, ipady=10)
-btnFrame.grid(row=2, column=1, padx=5, pady=5)
+btnFrame.grid(row=2,  column=1,  padx=5, pady=5)
 
 # reset
 resetBtn1 = tk.Button(mainFrame, text="RESET", font=(
@@ -157,12 +158,13 @@ def video_stream():
 
 def setThreePics(imagesPaths):
     newImagesPaths = checkDeepfaceOutputPaths(imagesPaths)
-    # 1
-    setImage(newImagesPaths[0], comCanvas1, comCanvas1_container)
-    # 2
-    setImage(newImagesPaths[1], comCanvas2, comCanvas2_container)
-    # 3
-    setImage(newImagesPaths[2], comCanvas3, comCanvas3_container)
+    #  1
+    setImage(newImagesPaths[0],  comCanvas1,  comCanvas1_container)
+    #  2
+    setImage(newImagesPaths[1],  comCanvas2,  comCanvas2_container)
+    #  3
+    setImage(newImagesPaths[2],  comCanvas3,  comCanvas3_container)
+
 
 
 def setImage(imgPath, imageCanvas, imageContainer):
@@ -172,7 +174,9 @@ def setImage(imgPath, imageCanvas, imageContainer):
     imageCanvas.itemconfig(imageContainer, image=new_image)
     imageCanvas.imgref = new_image
 
-# this function is to check the three imgs returned and fill in blanck onces if any is empty
+#  this function is to check the three imgs returned and fill in blanck onces if any is empty
+
+
 
 
 def checkDeepfaceOutputPaths(imagesPaths):
@@ -194,8 +198,9 @@ def checkDeepfaceOutputPaths(imagesPaths):
 
 
 def dummpySetImagesAndAttr():
-    setThreePics(blankImg, blankImg, blankImg)
-    setAttributes("Happy", "N/A: N/A")
+    setThreePics(blankImg,  blankImg,  blankImg)
+    setAttributes("Happy",  "N/A: N/A")
+
 
 
 def takePic(folder):
@@ -212,8 +217,9 @@ def setImagesAndAttr():
     path = takePic("lastImage")
     	
     analysis = verify.getFacialAttribute(path)
-    setAttributes(analysis["dominant_emotion"], str(
-        analysis["age"]), analysis["gender"], analysis["dominant_race"])
+    setAttributes(analysis["dominant_emotion"],  str(
+        
+        analysis["age"]),  analysis["gender"],  analysis["dominant_race"])
     results = verify.compare_one_to_many(path)
     listResult = results['identity'].to_list()
     setThreePics(listResult)
@@ -222,6 +228,7 @@ def setImagesAndAttr():
         os.remove("images/representations_vgg_face.pkl")
     except OSError:
         pass
+
 
 
 def getCurrentDateTime():
@@ -247,7 +254,7 @@ def resetImagesCanvasAndAttributes(imgPath, imageCanvas, imageContainer):
     # set all three pics to default
     imageCanvas.itemconfig(imageContainer, image=blankImage)
     imageCanvas.imgref = imgPath
-    # set attributes to default
+    #  set attributes to default
     emoLabel['text'] = "Emotion:"
     ageLabel['text'] = "Age:"
     genderLabel['text'] = "Gender:"
