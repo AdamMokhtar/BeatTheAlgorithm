@@ -201,8 +201,6 @@ def dummpySetImagesAndAttr():
     setThreePics(blankImg,  blankImg,  blankImg)
     setAttributes("Happy",  "N/A: N/A")
 
-
-
 def takePic(folder):
     global _lastImgPath, _callback_id
     # stope video capture
@@ -211,7 +209,6 @@ def takePic(folder):
     path = folder + "/picture_" + curr_datetime + ".jpg"
     _lastImgPath = cv2.imwrite(path, _frame)
     return path
-
 
 def setImagesAndAttr():
     path = takePic("lastImage")
@@ -267,24 +264,26 @@ def setAttributes(emotionAttr, ageAttr, genderAttr, raceAttr):
     genderLabel['text'] = "Gender: " + genderAttr
     raceLabel['text'] = "Race: " + raceAttr
 
-
-# def pressingKeyNoModel() -> None:
-#     if keyboard.is_pressed('enter'):
-#         takePic("images")
-
-
-
-# def pressingKeyModel() -> None:
-#     if keyboard.is_pressed('a'):
-#         print("!!!!!!!!a")
-#         takePic("images")
-
 # keyboard.on_press_key("a", lambda _:setImagesAndAttr())
+# keyboard.unhook_all()
 # keyboard.on_press_key("enter", lambda _:takePic("images"))
+# keyboard.unhook_all()
+
+def key_handler(event=None):
+    if event and event.keysym in ('a'):
+        setImagesAndAttr()
+    elif event and event.keysym in ('Return'): 
+        takePic("images")
+
+def funct(event): 
+    print(event.keysym)
+
+
+#window.bind("<Key>", funct)
+
+window.bind('<Key>', key_handler)
+
 
 
 video_stream()
-# pressingKeyModel()
-# pressingKeyNoModel()
-
 window.mainloop()
