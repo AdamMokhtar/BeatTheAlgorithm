@@ -226,11 +226,8 @@ def setImagesAndAttr():
     except OSError:
         pass
 
-
-
 def getCurrentDateTime():
     return datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-
 
 def reset():
     global _callback_id
