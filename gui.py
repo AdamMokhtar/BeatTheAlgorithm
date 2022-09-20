@@ -5,8 +5,7 @@ import cv2
 from datetime import datetime
 import os
 import verify
-import keyboard
-import keyboard
+from time import time, sleep
 
 
 window = tk.Tk()
@@ -21,26 +20,10 @@ capWhite = '#e9e7e5'
 window.configure(bg=capColor)
 
 
-# https://stackoverflow.com/questions/24061099/tkinter-resize-background-image-to-window-size
-# def resize_image(event):
-#     new_width = event.width
-#     new_height = event.height
-#     image = copy_of_image.resize((new_width, new_height))
-#     photo = ImageTk.PhotoImage(image)
-#     backGroundLabel.config(image=photo)
-#     backGroundLabel.image = photo  # avoid garbage collection
-
-
-# image = Image.open('BtATechivalBackground.png')
-# copy_of_image = image.copy()
-# photo = ImageTk.PhotoImage(image)
-# backGroundLabel = Label(window, image=photo)
-# backGroundLabel.bind('<Configure>', resize_image)
-# backGroundLabel.pack(fill=BOTH, expand=tk.YES)
-
 # importing the main image
 blankImg = "main.png"
 _imagesArr = None
+picTaken = False
 
 
 # A Main frame for the camera feed
@@ -54,8 +37,7 @@ mainFrame.columnconfigure(0, weight=3)
 mainFrame.rowconfigure(4, weight=5)
 
 
-titleLabel = tk.Label(mainFrame, text="BEAT THE ALGORITHM!", font=(
-    'Ubuntu 20 bold italic'), bg=capColor, fg=capFont)
+titleLabel = tk.Label(mainFrame, text="BEAT THE ALGORITHM!", font=('Ubuntu 20 bold italic'), bg=capColor, fg=capFont)
 titleLabel.grid(row=0, column=1, sticky="N")
 
 # Create a label in the frame
@@ -92,7 +74,6 @@ raceLabel.grid(row=3, column=0, sticky="W", padx=5, pady=5)
 attrFrame.grid(row=1, column=2, sticky="W", padx=5, pady=5)
 # attrFrame.pack(side=tk.LEFT)
 
-
 # btn frame
 btnFrame = tk.Frame(mainFrame, bg=capColor)
 # reset btn
@@ -114,9 +95,7 @@ resetBtn1 = tk.Button(mainFrame, text="RESET", font=(
     'Ubuntu 13'), command=lambda: reset(), bg=capWhite, fg=capColor)
 resetBtn1.grid(row=4, column=0, rowspan=5, sticky="SW")
 
-
 mainFrame.pack(side=tk.LEFT, padx=250)
-
 
 # comparison frame
 comFrame = tk.Frame(window, bg=capColor)
@@ -142,7 +121,6 @@ comCanvas3_container = comCanvas3.create_image(
     10, 10, anchor=tk.NW, image=blankImage)
 
 comFrame.pack(padx=20, side=tk.RIGHT)
-
 
 # function for video streaming
 def video_stream():
@@ -176,9 +154,6 @@ def setImage(imgPath, imageCanvas, imageContainer):
 
 #  this function is to check the three imgs returned and fill in blanck onces if any is empty
 
-
-
-
 def checkDeepfaceOutputPaths(imagesPaths):
     match len(imagesPaths):
         case 3:
@@ -211,6 +186,7 @@ def takePic(folder):
     return path
 
 def setImagesAndAttr():
+    global go
     path = takePic("lastImage")
     	
     analysis = verify.getFacialAttribute(path)
@@ -225,12 +201,13 @@ def setImagesAndAttr():
         os.remove("images/representations_vgg_face.pkl")
     except OSError:
         pass
+    go = False
 
 def getCurrentDateTime():
     return datetime.now().strftime('%Y-%m-%d %H-%M-%S')
 
 def reset():
-    global _callback_id
+    global _callback_id , picTaken
     # 1
     resetImagesCanvasAndAttributes(
         blankImage, comCanvas1, comCanvas1_container)
@@ -242,6 +219,8 @@ def reset():
         blankImage, comCanvas3, comCanvas3_container)
     mainLabel.after_cancel(_callback_id)
     _callback_id = mainLabel.after(1, video_stream)  # refresh
+
+    picTaken = False
 
 
 def resetImagesCanvasAndAttributes(imgPath, imageCanvas, imageContainer):
@@ -275,10 +254,26 @@ def key_handler(event=None):
 def funct(event): 
     print(event.keysym)
 
+def RedButtonTakePic(self, event=None):
+    global picTaken
+    if picTaken == False:
+        picTaken = True
+        print("pic take event")
+        setImagesAndAttr()
+
+def restEvent(self, event=None):
+    reset()
+    
+def takePicEvent(self, event=None):
+    takePic("images")
 
 #window.bind("<Key>", funct)
+#window.bind('<Key>', key_handler)
+window.bind('<a>', RedButtonTakePic)
+window.bind('<Button-2>', restEvent)
+window.bind('<Return>', takePicEvent)
 
-window.bind('<Key>', key_handler)
+
 
 
 
